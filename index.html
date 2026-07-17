@@ -540,7 +540,9 @@ function normalizeOrder(row) {
         name: row.customer_name,
         email: row.email,
         telegram: row.telegram_handle || "",
-        location: row.pgpr_location || [row.pgpr_block, row.pgpr_level, row.pgpr_room].filter(Boolean).join(" / "),
+        block: row.pgpr_block || "",
+        level: row.pgpr_level || "",
+        room: row.pgpr_room || "",
         items: Array.isArray(row.items) ? row.items : [],
         subtotal: Number(row.subtotal),
         tax: Number(row.tax),
@@ -570,7 +572,9 @@ function StoreApp() {
         name: "",
         email: "",
         telegram: "",
-        location: "",
+        block: "",
+        level: "",
+        room: "",
     });
     const [proofFile, setProofFile] = useState(null);
     const [proofError, setProofError] = useState(null);
@@ -718,7 +722,7 @@ function StoreApp() {
     }
     function goToPaymentStep(e) {
         e.preventDefault();
-        if (!form.name || !form.email || !form.telegram || !form.location)
+        if (!form.name || !form.email || !form.telegram || !form.block || !form.level || !form.room)
             return;
         setCheckoutStep("payment");
     }
@@ -775,7 +779,9 @@ function StoreApp() {
                 customer_name: form.name.trim(),
                 email: form.email.trim(),
                 telegram_handle: form.telegram.trim(),
-                pgpr_location: form.location.trim(),
+                pgpr_block: form.block.trim(),
+                pgpr_level: form.level.trim(),
+                pgpr_room: form.room.trim(),
                 items: orderItems,
                 subtotal,
                 tax,
@@ -794,7 +800,9 @@ function StoreApp() {
                 name: form.name,
                 email: form.email,
                 telegram: form.telegram,
-                location: form.location,
+                block: form.block,
+                level: form.level,
+                room: form.room,
                 items: orderItems,
                 subtotal,
                 tax,
@@ -810,7 +818,9 @@ function StoreApp() {
                 name: "",
                 email: "",
                 telegram: "",
-                location: "",
+                block: "",
+                level: "",
+                room: "",
             });
         }
         catch (err) {
@@ -1269,7 +1279,9 @@ function StoreApp() {
                         { key: "name", label: "NAME", type: "text", placeholder: "Full name" },
                         { key: "email", label: "EMAIL", type: "email", placeholder: "name@example.com" },
                         { key: "telegram", label: "TELEGRAM HANDLE", type: "text", placeholder: "@username" },
-                        { key: "location", label: "PGPR BLOCK / LEVEL / ROOM", type: "text", placeholder: "e.g. Block 3, Level 8, Room 123" },
+                        { key: "block", label: "PGPR BLOCK", type: "text", placeholder: "e.g. Block 3" },
+                        { key: "level", label: "PGPR LEVEL", type: "text", placeholder: "e.g. 08" },
+                        { key: "room", label: "PGPR ROOM", type: "text", placeholder: "e.g. 123" },
                     ].map((field) => (React.createElement("div", { key: field.key, className: "mb-3" },
                         React.createElement("label", { className: "fb-mono text-[10px] tracking-widest opacity-60 block mb-1" }, field.label),
                         React.createElement("input", {
@@ -1325,8 +1337,12 @@ function StoreApp() {
                         ". Keep this order number \u2014 it's how we'll confirm your payment."),
                     React.createElement("div", { className: "fb-mono text-[10px] opacity-60 mb-4" },
                         receipt.telegram,
-                        " \u00B7 ",
-                        receipt.location),
+                        " \u00B7 PGPR ",
+                        receipt.block,
+                        " / LEVEL ",
+                        receipt.level,
+                        " / ROOM ",
+                        receipt.room),
                     React.createElement("div", { className: "flex items-center gap-2 mb-4 p-2", style: { background: PAPER, border: `1px dashed rgba(23,63,43,0.3)` } },
                         React.createElement(ShieldCheck, { size: 16, color: BRASS }),
                         React.createElement("span", { className: "fb-mono text-[10px] tracking-wide" }, "STATUS: PENDING VERIFICATION")),
@@ -1398,7 +1414,12 @@ function StoreApp() {
                             " \u2014 ",
                             o.telegram || "NO TELEGRAM"),
                         React.createElement("div", { className: "fb-mono text-[10px] opacity-60 mb-2" },
-                            o.location || "NO PGPR LOCATION",
+                            "PGPR ",
+                            o.block || "\u2014",
+                            " / LEVEL ",
+                            o.level || "\u2014",
+                            " / ROOM ",
+                            o.room || "\u2014",
                             " \u00B7 ",
                             new Date(o.submittedAt).toLocaleString()),
                         React.createElement("div", { className: "mb-3" }, o.items.map((l) => (React.createElement("div", { key: l.id, className: "flex justify-between fb-mono text-xs py-0.5 opacity-80" },
